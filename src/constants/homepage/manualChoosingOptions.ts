@@ -1,4 +1,4 @@
-import { languageLevels } from "../general/language-levels";
+import { languageLevels } from "../general/languages";
 
 export type ManualLanguageOption = {
   level: (typeof languageLevels)[number];

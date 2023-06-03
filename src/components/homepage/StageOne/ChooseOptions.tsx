@@ -41,7 +41,7 @@ const ChooseOptions = ({ setChosenOption }: props) => {
               ? remainingWidth
               : "12vw",
           }}
-          className="rounded-md bg-white/10 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
+          className="rounded-xl border-4 border-rose-800/40 bg-rose-950/40 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
           onClick={() => {
             setTestClicked(!testClicked);
             setChosenOption("test");
@@ -65,7 +65,7 @@ const ChooseOptions = ({ setChosenOption }: props) => {
               ? remainingWidth
               : "12vw",
           }}
-          className="rounded-md bg-white/10 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
+          className="rounded-xl border-4 border-rose-800/40 bg-rose-950/40 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
           onClick={() => {
             setManualClicked(!manualClicked);
             setChosenOption("manual");
@@ -86,7 +86,7 @@ const ChooseOptions = ({ setChosenOption }: props) => {
               ? remainingWidth
               : "12vw",
           }}
-          className="rounded-md bg-white/10 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
+          className="bg-rose-550/40 rounded-xl border-4 border-rose-800/40 bg-opacity-20 font-cinzel text-4xl font-bold text-orange-400 shadow-lg shadow-white/5 transition-all duration-700 hover:bg-rose-800 lg:w-[25vh]"
           onClick={() => {
             setAIClicked(!AIClicked);
             setChosenOption("AI");

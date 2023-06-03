@@ -1,11 +1,12 @@
-import { LanguageLevel } from "@/constants/general/language-levels";
+import { LanguageLevel } from "@/constants/general/languages";
 import { create } from "zustand";
 import { modifyLevel } from "./LevelActionTypes";
 import { mountStoreDevtool } from "simple-zustand-devtools";
+import { UserLanguagesLevel } from "@/firebase";
+import { produce } from "immer";
 
 type State = {
-  hearingLevel: LanguageLevel | null;
-  readingLevel: LanguageLevel | null;
+  UserLanguagesLevel: UserLanguagesLevel;
   preferences: string; // to BE DETERMINED
 };
 
@@ -14,18 +15,26 @@ type Actions = {
 };
 
 export const useUserStore = create<State & Actions>((set) => ({
-  hearingLevel: null,
-  readingLevel: null,
-  MODIFY_LEVEL: (hearing, reading) =>
-    set((state) => {
-      if (hearing !== undefined) {
-        state.hearingLevel = hearing;
-      }
-      if (reading !== undefined) {
-        state.readingLevel = reading;
-      }
-      return state;
-    }),
+  UserLanguagesLevel: { de: { reading: null, hearing: null } },
+  MODIFY_LEVEL: (targetedLanguage, hearing, reading) =>
+    set(
+      produce((state) => {
+        let targetObj = state.UserLanguagesLevel[targetedLanguage];
+        if (targetObj === undefined) {
+          return (state.UserLanguagesLevel[targetedLanguage] = {
+            reading,
+            hearing,
+          });
+        }
+        if (hearing !== undefined) {
+          targetObj.hearing = hearing;
+        }
+        if (reading !== undefined) {
+          targetObj.reading = reading;
+        }
+        return state;
+      })
+    ),
   preferences: "",
 }));
 if (process.env.NODE_ENV === "development") {

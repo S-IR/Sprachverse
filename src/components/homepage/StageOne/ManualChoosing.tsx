@@ -4,7 +4,7 @@ import {
   ManualLanguageOption,
   ManualLanguageOptions,
 } from "@/constants/homepage/manualChoosingOptions";
-import { LanguageLevel } from "@/constants/general/language-levels";
+import { UserLanguagesLevel } from "@/constants/general/languages";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { useSprings, useSpring, animated, config } from "react-spring";
 import { useDrag } from "react-use-gesture";
@@ -19,8 +19,12 @@ interface props {
   setProgressStage: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
 }
 const ManualChoosing = ({ setChosenOption, setProgressStage }: props) => {
-  const [hearingLevel, setHearingLevel] = useState<null | LanguageLevel>(null);
-  const [readingLevel, setReadingLevel] = useState<null | LanguageLevel>(null);
+  const [hearingLevel, setHearingLevel] = useState<null | UserLanguagesLevel>(
+    null
+  );
+  const [readingLevel, setReadingLevel] = useState<null | UserLanguagesLevel>(
+    null
+  );
 
   const hearingRef = useRef<HTMLDivElement | null>(null);
   const readingRef = useRef<HTMLDivElement | null>(null);
@@ -28,7 +32,7 @@ const ManualChoosing = ({ setChosenOption, setProgressStage }: props) => {
   const [MODIFY_LEVEL] = useUserStore((store) => [store.MODIFY_LEVEL]);
   useEffect(() => {
     if (hearingLevel !== null && readingLevel !== null) {
-      MODIFY_LEVEL(hearingLevel, readingLevel);
+      MODIFY_LEVEL("de", hearingLevel, readingLevel);
       setProgressStage(2);
     }
   }, [hearingLevel, readingLevel]);
@@ -86,7 +90,7 @@ export default ManualChoosing;
 
 interface DeckProps {
   optionsArr: ManualLanguageOption[];
-  level: LanguageLevel | null;
+  level: UserLanguagesLevel | null;
   setLevel: React.Dispatch<
     React.SetStateAction<"A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null>
   >;

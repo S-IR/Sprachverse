@@ -1,4 +1,4 @@
-import { LanguageLevel } from "@/constants/general/language-levels";
+import { UserLanguagesLevel } from "@/constants/general/languages";
 import { ManualLanguageOption } from "@/constants/homepage/manualChoosingOptions";
 import Image from "next/image";
 import { useSpring, animated, config } from "react-spring";
@@ -19,8 +19,10 @@ interface props {
   option: ManualLanguageOption;
   parentWidth: number;
   parentHeight: number;
-  selectedLevel: LanguageLevel | null;
-  setSelectedLevel: React.Dispatch<React.SetStateAction<LanguageLevel | null>>;
+  selectedLevel: UserLanguagesLevel | null;
+  setSelectedLevel: React.Dispatch<
+    React.SetStateAction<UserLanguagesLevel | null>
+  >;
 }
 const zodIndexSchema = z.number().lt(6).positive();
 

@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+#firebase service account
+serviceAccountKey.json
+
 # next.js
 /.next/
 /out/

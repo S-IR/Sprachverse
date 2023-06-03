@@ -27,9 +27,9 @@ function determineStageComponent(
 export default function Home() {
   const [progressStage, setProgressStage] = useState<1 | 2 | 3>(1);
   const [transitions, api] = useTransition(progressStage, () => ({
-    from: { opacity: 0, transitions: "translateY(20)" },
+    from: { opacity: 0, transitions: "translateY(10%)" },
     enter: { opacity: 1, transitions: "translateY(0)" },
-    leave: { opacity: 0, transitions: "translateY(-20)" },
+    leave: { opacity: 0, transitions: "translateY(-10%)" },
   }));
   useEffect(() => {
     api.start();
@@ -37,10 +37,16 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen ">
-      <ProgressSidebar progressStage={progressStage} />
-      <main className="h-full w-full flex-1 ">
+      <ProgressSidebar
+        progressStage={progressStage}
+        setProgressStage={setProgressStage}
+      />
+      <main className="relative h-full w-full flex-1">
         {transitions((style, item) => (
-          <animated.div style={style}>
+          <animated.div
+            className={`absolute left-0 top-0 h-full w-full`}
+            style={style}
+          >
             {determineStageComponent(item, setProgressStage)}
           </animated.div>
         ))}
