@@ -25,11 +25,14 @@ import { useRouter } from "next/navigation";
 import { NextRouter, withRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase";
+import { PuffLoader } from "react-spinners";
+import { SupervisedUserCircle } from "@mui/icons-material";
+import UserDropdown from "./navbar/UserDropdown";
 
 const Navbar = () => {
   const { language, setLanguage } = useLanguage();
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
 
   const langButtonRef = useRef<HTMLButtonElement | null>(null);
   const [user, userLoading] = useAuthState(auth);
@@ -65,7 +68,40 @@ const Navbar = () => {
         </button>
       </div>
       <ChooseLangPopover anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
-      {user && <p>USER, {user.displayName}</p>}
+      {
+        //user profile icon component
+        userLoading ? (
+          <PuffLoader
+            size={20}
+            color="orange"
+            className="ml-auto  mr-8 rounded-full "
+          />
+        ) : (
+          <div
+            className={` ml-auto mr-8 flex h-[35px] w-[35px] items-center justify-center rounded-full border-dotted border-gray-500 align-middle transition-all  duration-300 hover:border-red-500 `}
+          >
+            {user && user.photoURL !== null && (
+              <button
+                id={"user-dropdown"}
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+                className="h-auto w-auto"
+              >
+                <Image
+                  src={user.photoURL}
+                  width={25}
+                  height={25}
+                  alt={"user profile picture"}
+                  className={` rounded-full  `}
+                />
+              </button>
+            )}
+            {user && !user.photoURL && (
+              <SupervisedUserCircle width={25} height={25} />
+            )}
+          </div>
+        )
+      }
+      <UserDropdown anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
     </nav>
   );
 };

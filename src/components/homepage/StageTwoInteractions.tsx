@@ -3,6 +3,7 @@ import React from "react";
 import { useState, Dispatch, SetStateAction } from "react";
 import GoogleButton from "../general/buttons/GoogleButton";
 import useAuthThirdParty from "@/hooks/useAuthThirdParty";
+import { setUserPreferences } from "@/lib/frontend/preferences/fetches";
 
 interface props {
   setProgressStage: Dispatch<SetStateAction<1 | 2 | 3>>;
@@ -37,8 +38,19 @@ const StageTwoInteractions = ({}: props) => {
               w="lg"
               onClick={async () => {
                 const authRes = await authWithGoogle();
-                if (authRes.status === "error") {
-                  console.log(authRes.error);
+                console.log("authRes", authRes);
+
+                if (authRes.status === "success") {
+                  const accessToken = authRes.oauthAccessToken;
+                  if (!accessToken)
+                    throw new Error("no oAuthAccessToken from authRes");
+                  const uid = authRes.user.uid;
+                  const userPreferencesRes = await setUserPreferences(
+                    accessToken,
+                    uid
+                  );
+                  const json = await userPreferencesRes.json();
+                  console.log("json", json);
                 }
               }}
             />

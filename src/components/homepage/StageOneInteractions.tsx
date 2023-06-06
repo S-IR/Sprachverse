@@ -40,7 +40,7 @@ const StageOneInteractions = ({ setProgressStage }: props) => {
   });
 
   return (
-    <section className="relative mx-[5vw] my-[5vh] h-full min-h-[75vh] w-3/4 flex-1 flex-col items-center justify-center  rounded-3xl bg-rose-950/40 p-4 align-middle shadow-md shadow-rose-700/20 lg:p-10">
+    <section className="relative  mx-[5vw] my-[5vh] h-full min-h-[75vh] w-3/4 flex-1 flex-col items-center justify-center  rounded-3xl bg-rose-950/40 p-4 align-middle shadow-md shadow-rose-700/20 lg:p-10 ">
       <Image
         className="absolute left-0 top-0 -z-10 rounded-3xl opacity-5 "
         fill
