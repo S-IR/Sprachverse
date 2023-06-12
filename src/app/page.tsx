@@ -10,6 +10,8 @@ import {
   StageThreeInteractions,
   StageTwoInteractions,
 } from "@/components/homepage";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/firebase";
 
 function determineStageComponent(
   progressStage: 1 | 2 | 3,
@@ -34,6 +36,7 @@ export default function Home() {
   useEffect(() => {
     api.start();
   }, [progressStage]);
+  const [user, userLoading] = useAuthState(auth);
 
   return (
     <div className="flex min-h-screen ">

@@ -4,6 +4,8 @@ import { useState, Dispatch, SetStateAction } from "react";
 import ChooseOptions from "./StageOne/ChooseOptions";
 import { useTransition, animated, config } from "react-spring";
 import ManualChoosing from "./StageOne/ManualChoosing";
+import { useQuery, QueryCache } from "react-query";
+
 interface props {
   setProgressStage: Dispatch<SetStateAction<1 | 2 | 3>>;
 }

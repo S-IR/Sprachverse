@@ -47,7 +47,7 @@ const storage = getStorage();
 export const createUserDoc = (
   uid: string,
   email: string,
-  username = "Not Specified",
+  username: string = "Not Specified",
   languageLevel: UserLanguagesLevel = { de: { hearing: null, reading: null } }
 ) => {
   userDocSchema.parse({ uid, email, username, languageLevel });

@@ -145,9 +145,6 @@ const LanguageCard = ({
   const open = popupAnchor !== null;
 
   const id = open ? "language-level-describer" : undefined;
-  useEffect(() => {
-    console.log("open", open);
-  }, [open]);
 
   return (
     <animated.div

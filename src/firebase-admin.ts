@@ -3,7 +3,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { ActionCodeSettings } from "firebase/auth";
 
-const ejs = require("ejs");
+// const ejs = require("ejs");
 
 const serviceAccount =
   require("../serviceAccountKey.json") as admin.ServiceAccount;

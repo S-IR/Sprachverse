@@ -12,7 +12,7 @@ import {
 } from "firebase/auth";
 import { useRouter } from "next/router";
 import React from "react";
-import { auth, createUserDoc } from "../firebase";
+import { auth, createUserDoc, UserLanguagesLevel } from "../firebase";
 import { requestSetSessionCookie } from "@/lib/frontend/auth/sessionCookies";
 import { authResponseType } from "@/constants/auth/types";
 import { useUserStore } from "@/store/UserStore";
@@ -23,7 +23,7 @@ import { useUserStore } from "@/store/UserStore";
  * React hook meant to allow for logging and signing in through third parties such as google , facebook etc.
  * @returns
  */
-export default function useAuthThirdParty() {
+export default function useAuthThirdParty(languageLevel?: UserLanguagesLevel) {
   const authWithGoogle = async (): Promise<authResponseType> => {
     const googleProvider = new GoogleAuthProvider();
     //     const oauth2Client = new OAuth2Client({
@@ -45,13 +45,24 @@ export default function useAuthThirdParty() {
       if (result.code !== undefined)
         return { status: "error", error: result.code };
       const isNewUser = getAdditionalUserInfo(result)?.isNewUser || false;
+      if (isNewUser) {
+        createUserDoc(
+          user.uid,
+          user.email as string,
+          user.displayName !== null ? user.displayName : undefined,
+          languageLevel
+        );
+      }
+
+      const token = await user.getIdToken();
+      await requestSetSessionCookie(token);
+
       return {
         status: "success",
         user,
         isNewUser,
         oauthAccessToken: result._tokenResponse.oauthAccessToken,
       };
-
       // if (!isNewUser) {
       //   // window.gtag(`event`, `login`, {
       //   //   method: "Google",

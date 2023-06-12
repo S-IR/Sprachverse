@@ -3,12 +3,12 @@
  * @param token
  */
 export const requestSetSessionCookie = async (token: string): Promise<void> => {
-  const res = await fetch("/api/users/set-session-cookie", {
-    method: "POST",
+  const res = await fetch("/api/users/session-cookie", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ token }),
   });
 
   if (!res.ok) {

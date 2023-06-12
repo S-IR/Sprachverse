@@ -15,15 +15,46 @@ import {
   mapToObject,
   setVideoTags,
 } from "@/lib/backend/preferences";
-import fs from "fs";
+import fs, { readFile } from "fs";
+import { assert } from "console";
+import { spawn } from "child_process";
+import path from "path";
+import { unified } from "unified";
+import english from "retext-english";
+import retextKeywords from "retext-keywords";
+import { toString } from "nlcst-to-string";
+import { retext } from "retext";
 // generate a url that asks permissions for Blogger and Google Calendar scopes
+import retextPos from "retext-pos";
+import {
+  getDownloadURL,
+  ref,
+  StorageReference,
+  uploadBytes,
+  uploadBytesResumable,
+  uploadString,
+} from "firebase/storage";
+import { db, storage } from "@/firebase";
+import { Key } from "@mui/icons-material";
+import { headers } from "next/headers";
+import admin from "@/firebase-admin";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { extractKeywordsFromText } from "@/lib/backend/preferences/extract-keywords";
+import { uploadPreference } from "@/lib/backend/preferences/upload-preferences";
+import { clusterKeywords } from "@/lib/backend/preferences/cluster-keywords";
 
 export async function POST(req: Request) {
-  const { access_token, firebase_UID } = await req.json();
+  const headersInstance = headers();
+  const authorization = headersInstance.get("authorization");
+  const { access_token } = await req.json();
 
-  console.log(`access_token`, access_token, `firebase_uid`, firebase_UID);
+  console.log(`access_token`, access_token, `authorization`, authorization);
 
-  if (access_token === undefined || firebase_UID === undefined) {
+  if (
+    access_token === undefined ||
+    !authorization ||
+    !authorization.startsWith("Bearer ")
+  ) {
     return new NextResponse(JSON.stringify({ error: "unauthorized" }), {
       status: 401,
     });
@@ -36,33 +67,32 @@ export async function POST(req: Request) {
   try {
     // get all or at most the last 500 videos that the user liked
     let videos = await getUserLikedVideos(youtube);
-    console.log(
-      "VIDEOS AFTER getUserLikedVideos  is EMPTY?",
-      Array.from(videos.keys()).length === 0
-    );
+    let lenAfterUserLikedVideos = Array.from(videos.keys()).length;
 
     let subscribedChannels = await getUserSubscribedChannels(youtube);
-    console.log(
-      "subscribedChannels AFTER getUserSubscribedChannels  is EMPTY?",
-      Array.from(subscribedChannels.keys()).length === 0
-    );
 
     const subscribedChannelIds = Array.from(subscribedChannels.keys());
 
-    videos = await getTop20VideosForChannels(
+    const top20Obj = await getTop20VideosForChannels(
       youtube,
       subscribedChannelIds,
       videos
     );
-    console.log(
-      "VIDEOS AFTER getTop20VideosForChannels is EMPTY?",
-      Array.from(videos.keys()).length === 0
-    );
+    if (top20Obj === undefined) return;
+    const { videos: videosFromTop20 } = top20Obj;
+    videos = videosFromTop20 as Map<string, VideoData>;
+    let lenAfterTop20Videos = Array.from(videos.keys()).length;
+
+    if (lenAfterTop20Videos <= lenAfterUserLikedVideos) {
+      throw new Error(
+        "THE LEN AFTER TOP 20 VIDEOS IS THE SAME OR SMALLER THAN AFTER USER LIKED VIDEOS"
+      );
+    }
 
     videos = await setVideoTags(youtube, videos);
     console.log(
-      "VIDEOS AFTER setVideoTags  is EMPTY?",
-      Array.from(videos.keys()).length === 0
+      "VIDEOS AFTER setVideoTags len",
+      Array.from(videos.keys()).length
     );
     const videosObj = mapToObject(videos);
     const subscribedChannelsObj = mapToObject(subscribedChannels);
@@ -70,9 +100,80 @@ export async function POST(req: Request) {
     const jsonChannels = JSON.stringify(subscribedChannelsObj);
     fs.writeFileSync("./jsonVideos.json", jsonVideos);
     fs.writeFileSync("./jsonChannels.json", jsonChannels);
-    return NextResponse.json({ videosObj, subscribedChannelsObj });
+
+    // const jsonVideos = require("./jsonVideos.json");
+
+    // const channels = require("./jsonChannels.json");
+    let text = "";
+
+    const videoKeys = Array.from(videos.keys());
+    videoKeys.forEach((key) => {
+      const video = videos.get(key);
+      if (!video) return;
+      let { description, title, tags, liked } = video;
+
+      if (tags !== undefined) {
+        text += tags + " , ";
+        if (liked) text += tags + " , " + tags;
+      }
+    });
+
+    const extractedKeywords = await extractKeywordsFromText(text);
+    if (extractedKeywords === undefined)
+      throw new Error("no keywords could be extracted from the given text");
+    const keywordClusters = await clusterKeywords(extractedKeywords);
+    if (extractedKeywords === undefined || extractedKeywords?.length === 0) {
+      throw new Error(
+        "could not extract any keywords from any of the videos that were searched for in the youtube API"
+      );
+    }
+    const jsonKeywords = JSON.stringify(keywordClusters);
+    fs.writeFileSync("./keywords.json", jsonKeywords);
+
+    // const jsonVideos = require("./jsonVideos.json");
+    // const jsonChannels = require("./jsonChannels.json");
+    // const jsonKeywords = require("./keywords.json");
+    const userData = {
+      videos: jsonVideos,
+      channels: jsonChannels,
+      keywords: jsonKeywords,
+    } as { [key: string]: string };
+
+    const token = authorization.split(" ")[1];
+    const { uid: firebase_uid } = await admin.auth().verifyIdToken(token);
+    const docRef = doc(db, "users", firebase_uid);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error(
+        `the user firebase document does not exist, token: ${token}`
+      );
+    }
+    for (const [key, value] of Object.entries(userData)) {
+      // const storageRef = ref(
+      //   storage,
+      //   `/users/preference/${firebase_uid}/${fieldName}.json`
+      // );
+      // const jsonValue = JSON.stringify(value);
+      // console.log("jsonValue undefined", jsonValue === undefined);
+      // const byteArray = new Uint8Array(
+      //   jsonValue.split("").map((char) => char.charCodeAt(0))
+      // );
+
+      // console.log("uintArray undefined", byteArray === undefined);
+      // const snapshot = await uploadBytes(storageRef, byteArray);
+      // const url = await getDownloadURL(snapshot.ref);
+      // setDoc(docRef, { [fieldName]: url }, { merge: true });
+
+      await uploadPreference(
+        key as "videos" | "channels" | "keywords",
+        value,
+        firebase_uid
+      );
+    }
+
+    return NextResponse.json(userData);
   } catch (error) {
     console.log("error", error);
-    return NextResponse.json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,17 +1,104 @@
 import Image from "next/image";
-import React from "react";
-import { useState, Dispatch, SetStateAction } from "react";
+import React, { useEffect } from "react";
+import { useState, Dispatch, SetStateAction, useRef } from "react";
 import GoogleButton from "../general/buttons/GoogleButton";
 import useAuthThirdParty from "@/hooks/useAuthThirdParty";
 import { setUserPreferences } from "@/lib/frontend/preferences/fetches";
+import { config, useTransition, animated, useSpring } from "react-spring";
+import ChooseOptionsStageTwo from "./StageTwo/ChooseOptionStageTwo";
+import PleaseWaitStageTwo from "./StageTwo/PleaseWaitStageTwo";
+import CategoryQuiz from "./StageTwo/CategoryQuiz";
+import ChooseVideoQuiz from "./StageTwo/ChooseVideoQuiz";
 
 interface props {
   setProgressStage: Dispatch<SetStateAction<1 | 2 | 3>>;
 }
-const StageTwoInteractions = ({}: props) => {
-  const [authWithGoogle] = useAuthThirdParty();
+
+const DetermineDisplayedComp = (
+  chosenOption: StageTwoOption,
+  setChosenOption: React.Dispatch<React.SetStateAction<StageTwoOption>>,
+  setProgressStage: Dispatch<SetStateAction<1 | 2 | 3>>
+) => {
+  switch (chosenOption) {
+    case null:
+      return (
+        <ChooseOptionsStageTwo
+          setProgressStage={setProgressStage}
+          setChosenOption={setChosenOption}
+        />
+      );
+    case "please-wait":
+      return (
+        <PleaseWaitStageTwo
+          setProgressStage={setProgressStage}
+          setChosenOption={setChosenOption}
+        />
+      );
+    case "category-quiz":
+      return (
+        <CategoryQuiz
+          setProgressStage={setProgressStage}
+          setChosenOption={setChosenOption}
+        />
+      );
+    case "choose-video-quiz":
+      return (
+        <ChooseVideoQuiz
+          setProgressStage={setProgressStage}
+          setChosenOption={setChosenOption}
+        />
+      );
+  }
+};
+export type StageTwoOption =
+  | "please-wait"
+  | "category-quiz"
+  | null
+  | "choose-video-quiz";
+const StageTwoInteractions = ({ setProgressStage }: props) => {
+  const [height, setHeight] = useState(0);
+
+  const [chosenOption, setChosenOption] = useState<StageTwoOption>(null);
+
+  const sectionStyles = useSpring({
+    from: { height: "75vh" },
+    to: { height: height > 0 ? Math.max(height, 75) + "vh" : "75vh" },
+    config: config.stiff,
+  });
+  const transitions = useTransition(chosenOption, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+    config: { ...config.gentle, duration: 300 },
+  });
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const absoluteElementRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!absoluteElementRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const newHeight = (entry.contentRect.height * 100) / window.innerHeight;
+        setHeight(newHeight);
+      }
+    });
+    setHeight(
+      (absoluteElementRef.current.offsetHeight * 100) / window.innerHeight
+    );
+    resizeObserver.observe(absoluteElementRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [chosenOption, absoluteElementRef.current]);
+
   return (
-    <section className="relative mx-[5vw] my-[5vh] flex h-full min-h-[75vh] w-3/4 flex-1 flex-col items-center justify-center  overflow-clip rounded-3xl bg-rose-950/40 align-middle  ">
+    <animated.section
+      ref={sectionRef}
+      className="relative mx-[5vw] my-[5vh] flex h-auto min-h-[75vh] w-3/4 flex-1 flex-col items-center justify-center overflow-clip  rounded-3xl bg-rose-950/40 p-4 align-middle"
+      style={sectionStyles}
+    >
       <Image
         className="absolute left-0 top-0 -z-10 rounded-3xl opacity-5 "
         fill
@@ -19,60 +106,16 @@ const StageTwoInteractions = ({}: props) => {
         alt={"Background image for stage one"}
         style={{ objectFit: "cover" }}
       />
-
-      <h3 className="!md:my-8  w-full pt-12 text-center font-fantasy text-4xl font-bold text-yellow-600">
-        Now let us see what you like
-      </h3>
-      <h4 className="w-full text-center font-fantasy font-bold text-yellow-600">
-        You can either allow us to get your preferences from google or take a
-        small quiz
-      </h4>
-      <div className="flex h-full w-full flex-row pt-4">
-        <div className="relative flex h-full w-1/2 flex-col items-center border-2 border-black/40 bg-orange-900/10">
-          <h4 className="absolute left-0 top-0 my-4 w-full text-center font-fantasy text-2xl font-bold text-white">
-            Authenticate through Google
-          </h4>
-          <div className="my-4 flex grow flex-col items-center justify-center align-middle">
-            <GoogleButton
-              text="Sign up with Google"
-              w="lg"
-              onClick={async () => {
-                const authRes = await authWithGoogle();
-                console.log("authRes", authRes);
-
-                if (authRes.status === "success") {
-                  const accessToken = authRes.oauthAccessToken;
-                  if (!accessToken)
-                    throw new Error("no oAuthAccessToken from authRes");
-                  const uid = authRes.user.uid;
-                  const userPreferencesRes = await setUserPreferences(
-                    accessToken,
-                    uid
-                  );
-                  const json = await userPreferencesRes.json();
-                  console.log("json", json);
-                }
-              }}
-            />
-          </div>
-        </div>
-        <div className="m relative flex  h-full w-1/2  flex-col items-center border-2 border-black/40 bg-orange-900/10">
-          <h4 className="absolute left-0 top-0 my-4 w-full text-center font-fantasy text-2xl font-bold text-white">
-            Take a small quiz
-          </h4>
-          <div className="my-4 flex grow flex-col items-center justify-center align-middle">
-            <button
-              className="h-12 w-64  rounded-md border-2 border-orange-900 bg-rose-950 font-fantasy text-xl transition-all duration-300 hover:bg-rose-800"
-              onClick={() => {
-                throw new Error("WORK IN PROGRESS");
-              }}
-            >
-              Start Quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
+      {transitions((style, item) => (
+        <animated.div
+          ref={absoluteElementRef}
+          style={style}
+          className="absolute left-0 top-0 z-10 h-auto w-full  "
+        >
+          {DetermineDisplayedComp(item, setChosenOption, setProgressStage)}
+        </animated.div>
+      ))}
+    </animated.section>
   );
 };
 
