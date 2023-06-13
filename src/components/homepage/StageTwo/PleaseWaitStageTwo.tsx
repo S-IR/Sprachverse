@@ -74,7 +74,7 @@ const PleaseWaitStageTwo = ({ setChosenOption, setProgressStage }: props) => {
   }, []);
 
   return (
-    <section className="flex h-full min-h-[60vh] w-full flex-col items-center justify-center space-y-14 align-middle ">
+    <section className="flex h-full min-h-[30vh] w-full flex-col items-center justify-center space-y-14 align-middle ">
       <h3 className="font-fantasy text-4xl text-yellow-600">Please Wait</h3>
       <PuffLoader
         className=" h-24 w-24"

@@ -1,10 +1,9 @@
-import "@tensorflow/tfjs-node";
 import * as use from "@tensorflow-models/universal-sentence-encoder";
 import { clusterize } from "node-kmeans";
 import fs from "fs";
 import { z } from "zod";
 
-// The whole document is a script that takes in a keywords array and groups keywords into categories using clustering algorithms. The main steps are:
+// The whole document is a script tnhat takes in a keywords array and groups keywords into categories using clustering algorithms. The main steps are:
 
 // Encode the keywords using the Universal Sentence Encoder (TensorFlow model) to obtain embeddings (encodeKeywords).
 // Determine the optimal number of clusters using the Kneedle algorithm (optimalNumClusters).

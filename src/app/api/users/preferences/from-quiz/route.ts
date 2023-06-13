@@ -19,10 +19,9 @@ import { uploadPreference } from "@/lib/backend/preferences/upload-preferences";
  */
 export async function POST(req: Request) {
   const headersInstance = headers();
-  const authorization = headersInstance.get("authorization");
+  const authorization = headersInstance.get("Authorization");
   const { videos }: { videos: FrontendVideoObj[] } = await req.json();
 
-  console.log(`videos`, videos, `authorization`, authorization);
 
   const isAuthButNoBearer =
     authorization !== null && !authorization.startsWith("Bearer ");
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
 
     // get all or at most the last 500 videos that the user liked
 
-    const text = videos
+    const text = Object.values(videos)
       .map((video) => `${video.text}, ${video.tags}`)
       .join(",");
     const extractedKeywords = await extractKeywordsFromText(text);
