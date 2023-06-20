@@ -16,24 +16,7 @@ import {
   setVideoTags,
 } from "@/lib/backend/preferences";
 import fs, { readFile } from "fs";
-import { assert } from "console";
-import { spawn } from "child_process";
-import path from "path";
-import { unified } from "unified";
-import english from "retext-english";
-import retextKeywords from "retext-keywords";
-import { toString } from "nlcst-to-string";
-import { retext } from "retext";
-// generate a url that asks permissions for Blogger and Google Calendar scopes
-import retextPos from "retext-pos";
-import {
-  getDownloadURL,
-  ref,
-  StorageReference,
-  uploadBytes,
-  uploadBytesResumable,
-  uploadString,
-} from "firebase/storage";
+
 import { db, storage } from "@/firebase";
 import { Key } from "@mui/icons-material";
 import { headers } from "next/headers";

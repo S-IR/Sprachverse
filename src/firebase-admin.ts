@@ -9,7 +9,10 @@ const serviceAccount =
   require("../serviceAccountKey.json") as admin.ServiceAccount;
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert({
+      project_id: process.env.FIREBASE_project_id as string,
+      client_id: process.env.FIREBASE_client_id as string,
+    }),
   });
 }
 export default admin;

@@ -1,7 +1,7 @@
-import * as use from "@tensorflow-models/universal-sentence-encoder";
 import { clusterize } from "node-kmeans";
 import fs from "fs";
 import { z } from "zod";
+import { NlpManager } from "node-nlp";
 
 // The whole document is a script tnhat takes in a keywords array and groups keywords into categories using clustering algorithms. The main steps are:
 
@@ -28,11 +28,15 @@ interface ClusterObject {
  * @param {*} keywords The keyword that you want to encode
  * @returns {embedding} a vector representing the keyword
  */
-const encodeKeywords = async (
-  keywords: string[]
-): Promise<use.TensorBuffer> => {
-  const model = await use.load();
-  const embeddings = await model.embed(keywords);
+const encodeKeywords = async (keywords: string[]): Promise<number[][]> => {
+  const manager = new NlpManager({ languages: ["en"], forceNER: true });
+  await manager.loadNerModel("path/to/your/pretrained/model");
+
+  const embeddings = [];
+  for (const keyword of keywords) {
+    const result = await manager.process("en", keyword);
+    embeddings.push(result.sentiment.score);
+  }
   return embeddings;
 };
 
