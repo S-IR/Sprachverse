@@ -1,12 +1,7 @@
 import * as admin from "firebase-admin";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "./firebase";
-import { ActionCodeSettings } from "firebase/auth";
 
 // const ejs = require("ejs");
 
-const serviceAccount =
-  require("../serviceAccountKey.json") as admin.ServiceAccount;
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
