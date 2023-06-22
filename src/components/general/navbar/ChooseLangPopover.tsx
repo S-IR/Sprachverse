@@ -1,4 +1,3 @@
-import { useLanguage } from "@/app/layout";
 import {
   WebsiteLanguage,
   websiteLanguageOptions,
@@ -21,7 +20,6 @@ interface props {
   setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
 }
 const ChooseLangPopover = ({ anchorEl, setAnchorEl }: props) => {
-  const { language, setLanguage } = useLanguage();
   const open = anchorEl?.id === "lang-popover";
   const handleClose = (event: Event | React.SyntheticEvent) => {
     setAnchorEl(null);
@@ -67,7 +65,7 @@ const ChooseLangPopover = ({ anchorEl, setAnchorEl }: props) => {
                 id="composition-menu"
                 aria-labelledby="composition-button"
                 onKeyDown={handleListKeyDown}
-                className="!bg-orange-900 rounded-sm"
+                className="rounded-sm !bg-orange-900"
               >
                 {websiteLanguageOptions.map((langToSelect) => {
                   const selected = langToSelect === language;
@@ -86,7 +84,7 @@ const ChooseLangPopover = ({ anchorEl, setAnchorEl }: props) => {
                         height={25}
                       />
                       <p
-                        className={`font-serif ml-2  ${
+                        className={`ml-2 font-serif  ${
                           selected ? "text-red-400" : "text-white"
                         } `}
                       >

@@ -12,24 +12,16 @@ import AllModalBoxes from "@/components/general/modals/AllDialogBoxes";
 
 const inter = Inter({ subsets: ["latin"] });
 
-
 type LanguageContextType = {
   language: string;
   setLanguage: (language: string) => void;
 };
-const LanguageContext = createContext<LanguageContextType>({
-  language: "en",
-  setLanguage: (language) => undefined,
-});
-export function useLanguage() {
-  return useContext(LanguageContext);
-}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [language, setLanguage] = useState("en");
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -40,17 +32,15 @@ export default function RootLayout({
   });
 
   return (
-    <html lang={language}>
+    <html lang={"en"}>
       <body
         className={`${inter.className} bg-gradient-to-r from-[#1C1503] to-black`}
       >
         <QueryClientProvider client={queryClient}>
-          <LanguageContext.Provider value={{ language, setLanguage }}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Navbar />
-            {children}
-            <AllModalBoxes />
-          </LanguageContext.Provider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <Navbar />
+          {children}
+          <AllModalBoxes />
         </QueryClientProvider>
       </body>
     </html>

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React, { useEffect, useState, useRef } from "react";
-import { useLanguage } from "../../app/layout";
 import {
   MenuItem,
   Select,
@@ -30,8 +29,6 @@ import { SupervisedUserCircle } from "@mui/icons-material";
 import UserDropdown from "./navbar/UserDropdown";
 
 const Navbar = () => {
-  const { language, setLanguage } = useLanguage();
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
 
   const langButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -57,7 +54,7 @@ const Navbar = () => {
           Reading
         </button>
       </div>
-      <div className="relative flex flex-1 items-center justify-end">
+      {/* <div className="relative flex flex-1 items-center justify-end">
         <button
           ref={langButtonRef}
           onClick={() => setAnchorEl(langButtonRef.current)}
@@ -66,8 +63,8 @@ const Navbar = () => {
         >
           {language}
         </button>
-      </div>
-      <ChooseLangPopover anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
+      </div> */}
+      {/* <ChooseLangPopover anchorEl={anchorEl} setAnchorEl={setAnchorEl} /> */}
       {
         //user profile icon component
         userLoading ? (

@@ -9,7 +9,6 @@
 /coverage
 
 #firebase service account
-serviceAccountKey.json
 
 # next.js
 /.next/

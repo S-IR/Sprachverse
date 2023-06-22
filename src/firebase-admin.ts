@@ -1,12 +1,13 @@
 import * as admin from "firebase-admin";
 
 // const ejs = require("ejs");
-
+const { private_key } = JSON.parse(process.env.FIREBASE_private_key as string);
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
-      project_id: process.env.FIREBASE_project_id as string,
-      client_id: process.env.FIREBASE_client_id as string,
+      projectId: process.env.FIREBASE_project_id,
+      privateKey: private_key,
+      clientEmail: process.env.FIREBASE_client_email,
     }),
   });
 }

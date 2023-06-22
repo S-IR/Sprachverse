@@ -19,12 +19,8 @@ interface props {
   setProgressStage: React.Dispatch<React.SetStateAction<1 | 2 | 3>>;
 }
 const ManualChoosing = ({ setChosenOption, setProgressStage }: props) => {
-  const [hearingLevel, setHearingLevel] = useState<null | UserLanguagesLevel>(
-    null
-  );
-  const [readingLevel, setReadingLevel] = useState<null | UserLanguagesLevel>(
-    null
-  );
+  const [hearingLevel, setHearingLevel] = useState<null | LanguageLevel>(null);
+  const [readingLevel, setReadingLevel] = useState<null | LanguageLevel>(null);
 
   const hearingRef = useRef<HTMLDivElement | null>(null);
   const readingRef = useRef<HTMLDivElement | null>(null);
